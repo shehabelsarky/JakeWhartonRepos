@@ -1,20 +1,30 @@
 package shehab.task.com.jakewhartonrepos.ui.fragment
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import shehab.task.com.jakewhartonrepos.data.model.ReposResponse
+import shehab.task.com.jakewhartonrepos.domain.HomeFragmentUseCase
+import shehab.task.com.jakewhartonrepos.ui.fragment.base.BaseViewModel
+import shehab.task.com.jakewhartonrepos.utils.SnackbarMessage
 import javax.inject.Inject
 
-class HomeFragmentViewModel @Inject constructor(private var homeFragmentRepo: HomeFragmentRepo) : ViewModel() {
+class HomeFragmentViewModel @Inject constructor(
+    private var homeFragmentUseCase: HomeFragmentUseCase
+) : BaseViewModel() {
 
-    fun getRepos(pageIndex: Int,pageSize: Int){
-        homeFragmentRepo.getRepos(pageIndex,pageSize)
+    private val mSnackbarText = SnackbarMessage()
+
+
+    init {
+        mSnackbarText.value = homeFragmentUseCase.errorMessage
     }
 
-    fun getReposLiveData() :LiveData<List<ReposResponse>> = homeFragmentRepo.reposMutableLiveData
+    fun getRepos(pageIndex: Int, pageSize: Int) {
+        compositeDisposable.add(homeFragmentUseCase.getRepos(pageIndex, pageSize))
+    }
 
-    override fun onCleared() {
-        super.onCleared()
-        homeFragmentRepo.clearDisposables()
+    fun getReposLiveData(): LiveData<List<ReposResponse>> = homeFragmentUseCase.getReposLiveData()
+
+    internal fun getSnackbarMessage(): SnackbarMessage {
+        return mSnackbarText
     }
 }

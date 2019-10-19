@@ -10,8 +10,11 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import okhttp3.Dispatcher
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import shehab.task.com.jakewhartonrepos.data.db.AppDatabase
 import shehab.task.com.jakewhartonrepos.data.network.ApiEndpointInterface
 import shehab.task.com.jakewhartonrepos.data.network.ApiUrls
+import shehab.task.com.jakewhartonrepos.data.repository.AppRepository
+import shehab.task.com.jakewhartonrepos.data.repository.AppRepositoryImp
 import shehab.task.com.jakewhartonrepos.utils.ACCESS_TOKEN
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -82,6 +85,7 @@ class NetworkModule {
             .addInterceptor { chain ->
                 val request = chain.request() //original request
                 val newRequest = request.newBuilder() //modified request
+                        //add your github access token for the project to work
                     .addHeader("Authorization", "token " + ACCESS_TOKEN)
                     .build()
 
@@ -94,6 +98,9 @@ class NetworkModule {
 
 
 
-
+    @Provides
+    fun provideRepository(networkInterface: ApiEndpointInterface,database: AppDatabase): AppRepository {
+        return AppRepositoryImp(networkInterface,database)
+    }
 
 }

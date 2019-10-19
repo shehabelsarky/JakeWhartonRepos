@@ -13,6 +13,13 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+
+    configurations.all {
+        resolutionStrategy {
+            // We want version 5.3.2 instead of 5.2.1.
+            force 'net.sf.proguard:proguard-gradle:5.3.2'
+        }
+    }
 }
 
 allprojects {

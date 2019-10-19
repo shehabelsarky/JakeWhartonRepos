@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -16,15 +17,18 @@ import shehab.task.com.jakewhartonrepos.R
 import shehab.task.com.jakewhartonrepos.data.model.ReposResponse
 import shehab.task.com.jakewhartonrepos.utils.EndlessRecyclerViewScrollListener
 import shehab.task.com.jakewhartonrepos.utils.NetworkingUtils
+import shehab.task.com.jakewhartonrepos.utils.SnackbarMessage
+import shehab.task.com.jakewhartonrepos.utils.SnackbarUtils
 import javax.inject.Inject
 
 const val PAGE_SIZE = 15
+const val LOADING = 2
 
 class HomeFragment : DaggerFragment(), ReposListAdapter.OnItemClickListener {
 
     private val TAG: String = HomeFragment::class.java.simpleName
     private var pageIndex = 1
-    val reposResponse = ReposResponse()
+    private val reposResponse = ReposResponse()
     private var isTypeAdded = false
     private var reposList = ArrayList<ReposResponse>()
     private var reposListAdapter: ReposListAdapter? = null
@@ -46,7 +50,8 @@ class HomeFragment : DaggerFragment(), ReposListAdapter.OnItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        reposResponse.type = 2
+        setupSnackbar()
+        reposResponse.type = LOADING
         if (isAdded)
             initReposList()
     }
@@ -93,7 +98,15 @@ class HomeFragment : DaggerFragment(), ReposListAdapter.OnItemClickListener {
             }
         }
         rvReposList.addOnScrollListener(scrollListener!!)
+    }
 
+
+    private fun setupSnackbar() {
+        viewModel.getSnackbarMessage().observe(this, object : SnackbarMessage.SnackbarObserver {
+            override fun onNewMessage(@StringRes snackbarMessageResourceId: Int) {
+                    SnackbarUtils.showSnackbar(view, getString(snackbarMessageResourceId))
+            }
+        })
     }
 
     override fun onItemClick(repoItem: ReposResponse) {
